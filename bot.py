@@ -17,7 +17,7 @@ async def on_message(message):
     # Check if the message is in the #general channel
     if message.channel.name == "general":
         # Check if 'Railroader Game' is mentioned in the message
-        if any(user.name == "Railroader Game" for user in message.mentions):
+        if any(user.name == "@Railroader" for user in message.mentions):
             await message.channel.send("Fellow reminder to keep yours eyes and ears open less you want to have a meeting in my office.😊")
 
     # Process other commands if any
