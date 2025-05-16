@@ -1,0 +1,1 @@
+This is a Discord bot that I am developing and slowly updating as changes are requested for the Pine Valley Railway Discord for the #hfi_log channel to help automate and standardize incident reports across its Railroader game server.
