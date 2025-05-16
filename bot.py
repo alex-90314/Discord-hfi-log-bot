@@ -5,7 +5,7 @@ from keep_alive import keep_alive
 import os
 
 intents = discord.Intents.default()
-intents.message_count = True
+intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event

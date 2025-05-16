@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "I'm alive!"
+    return "I'm alive! on update 1.1.1"
 
 def run():
     app.run(host='0.0.0.0', port=8080)
