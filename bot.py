@@ -6,6 +6,8 @@ import os
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.guilds = True
+intents.members = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
@@ -14,11 +16,12 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    # Check if the message is in the #general channel
+    # Check if the message is in the 'general' channel
     if message.channel.name == "general":
-        # Check if 'Railroader Game' is mentioned in the message
-        if any(user.name == "@Railroader" for user in message.mentions):
-            await message.channel.send("Fellow reminder to keep yours eyes and ears open less you want to have a meeting in my office.😊")
+        # Retrieve the role by name
+        role = discord.utils.get(message.guild.roles, name="Railroader Game")
+        if role and role in message.role_mentions:
+            await message.channel.send("Fellow reminder to keep yours eyes and ears open less you want to have a meeting in my office.👀😁")
 
     # Process other commands if any
     await bot.process_commands(message)
