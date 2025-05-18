@@ -9,7 +9,7 @@ intents.message_content = True
 intents.guilds = True
 intents.members = True
 bot = commands.Bot(command_prefix="!", intents=intents)
-
+'''
 @bot.event
 async def on_message(message):
     # Prevent the bot from responding to its own messages
@@ -25,7 +25,7 @@ async def on_message(message):
 
     # Process other commands if any
     await bot.process_commands(message)
-
+'''
 # Slash command to report a car incident
 @bot.tree.command(name="hfi", description="Make a report")
 @app_commands.describe(
