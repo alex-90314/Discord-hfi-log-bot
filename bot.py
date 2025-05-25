@@ -1,15 +1,17 @@
-import discord
+import os, discord
 from discord.ext import commands
 from discord import app_commands
 from keep_alive import keep_alive
-import os
+from datetime import datetime
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
 intents.members = True
 bot = commands.Bot(command_prefix="!", intents=intents)
-'''
+
+last_response_date = {} # Dictionary to track the last response date per guild
+
 @bot.event
 async def on_message(message):
     # Prevent the bot from responding to its own messages
@@ -18,14 +20,19 @@ async def on_message(message):
 
     # Check if the message is in the 'general' channel
     if message.channel.name == "general":
-        # Retrieve the role by name
-        role = discord.utils.get(message.guild.roles, name="Railroader Game")
+        role = discord.utils.get(message.guild.roles, name="Railroader Game") # Retrieve the role by name
         if role and role in message.role_mentions:
-            await message.channel.send("Fellow reminder to keep yours eyes and ears open less you want to have a meeting in my office.👀😁")
+            keywords = "Server is up"
+            if (keyword in message.content.lower() for keyword in keywords):
+                current_day = datetime.utcnow().day # Get the current day of the month
+                if current_day%2==0: # Check if the day is divisible by 2
+                    guild_id = message.guild.id
+                    if last_response_date.get(guild_id) != current_day: # Check if the bot has already responded today
+                        await message.channel.send("Fellow reminder to keep yours eyes and ears open less you want to have a meeting in my office.👀😁")
+                        last_response_date[guild_id] = current_day # Update the last response date
+    
+    await bot.process_commands(message) # Process other commands if any
 
-    # Process other commands if any
-    await bot.process_commands(message)
-'''
 # Slash command to report a car incident
 @bot.tree.command(name="hfi", description="Make a report")
 @app_commands.describe(
