@@ -25,7 +25,7 @@ async def on_message(message):
             keywords = "Server is up"
             if (keyword in message.content.lower() for keyword in keywords):
                 current_day = datetime.utcnow().day # Get the current day of the month
-                if current_day%2==0: # Check if the day is divisible by 2
+                if current_day%3==0: # Check if the day is divisible by 3
                     guild_id = message.guild.id
                     if last_response_date.get(guild_id) != current_day: # Check if the bot has already responded today
                         await message.channel.send("Fellow reminder to keep yours eyes and ears open less you want to have a meeting in my office.👀😁")
