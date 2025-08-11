@@ -1,8 +1,9 @@
-import os, discord
+import os, discord, json
 from discord.ext import commands
 from discord import app_commands
 from keep_alive import keep_alive
 from datetime import datetime
+from collections import Counter
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -10,8 +11,21 @@ intents.guilds = True
 intents.members = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-last_response_date = {} # Dictionary to track the last response date per guild
+LOG_FILE = "reports.json"
 
+def load_reports():
+    try:
+        with open(LOG_FILE, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+
+def save_reports(reports):
+    with open(LOG_FILE, "w") as f:
+        json.dump(reports, f, default=str)
+
+
+# last_response_date = {} # Dictionary to track the last response date per guild
 # @bot.event
 # async def on_message(message):
 #     # Prevent the bot from responding to its own messages
@@ -33,13 +47,14 @@ last_response_date = {} # Dictionary to track the last response date per guild
     
 #     await bot.process_commands(message) # Process other commands if any
 
+
 # Slash command to report a car incident
 @bot.tree.command(name="hfi", description="Make a report")
 @app_commands.describe(
     date="Date of the incident (e.g. Day ##)",
     location="Where the incident occured",
     car_id="Car identification number(s) (e.g. IOS475, FLP909,...)",
-    percent="Current percentage(s) in order of car ID(s)",
+    percent="Current condition(s) in order of car ID(s)",
     description="Brief description of what happened"
 )
 async def hfi(
@@ -51,21 +66,58 @@ async def hfi(
     description: str
 ):
     # Compose and send the response
-    summary = (
+    report = (
         f"📅 **Day**: {date}\n"
         f"📍 **Location**: {location}\n"
         f"🚃 **Car ID(s)**: {car_id}\n"
-        f"🤕 **Current damage(s)**: {percent}\n"
+        f"🤕 **Current condition(s)**: {percent}\n"
         f"📝 **Description of what happened**: {description}"
     )
-    await interaction.response.send_message(summary)
+    reports = load_reports()
+    reports.append(report)
+    save_reports(reports)
+    await interaction.response.send_message(report)
+
+
+@tasks.loop(hours=24)
+async def biweekly_summary():
+    now = datetime.utcnow()
+    cutoff = now - timedelta(days=14)
+    reports = load_reports()
+    recent = [r for r in reports if datetime.fromisoformat(r["timestamp"]) >= cutoff]
+
+    total = len(recent)
+    avg_per_day = (total / 14) if total else 0
+    days = [datetime.fromisoformat(r["timestamp"]).date() for r in recent]
+    most_common = Counter(days).most_common(1)
+    top_day = most_common[0][0].isoformat() if most_common else "N/A"
+
+    channel = bot.get_channel(SUMMARY_CHANNEL_ID)
+    if channel:
+        await channel.send(
+            f"**Bi-Weekly Incident Report**\n"
+            f"• Total incidents: {total}\n"
+            f"• Average per day: {avg_per_day:.2f}\n"
+            f"• Most incidents on: {top_day}"
+        )
+
+    # Clear logs after reporting
+    save_reports([])
+
+
+@biweekly_summary.before_loop
+async def before_summary():
+    await bot.wait_until_ready()
 
 
 @bot.event
 async def on_ready():
     await bot.tree.sync()
+    if not biweekly_summary.is_running():
+        biweekly_summary.start()
     print(f"Logged in as {bot.user} (ID: {bot.user.id})")
     print("------")
+
 
 keep_alive()
 bot.run(os.environ["token"])
