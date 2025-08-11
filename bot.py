@@ -1,8 +1,8 @@
 import os, discord, json
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import app_commands
 from keep_alive import keep_alive
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import Counter
 
 intents = discord.Intents.default()
@@ -12,6 +12,7 @@ intents.members = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 LOG_FILE = "reports.json"
+SUMMARY_CHANNEL = 1377864002599915671
 
 def load_reports():
     try:
@@ -92,7 +93,7 @@ async def biweekly_summary():
     most_common = Counter(days).most_common(1)
     top_day = most_common[0][0].isoformat() if most_common else "N/A"
 
-    channel = bot.get_channel(SUMMARY_CHANNEL_ID)
+    channel = bot.get_channel(SUMMARY_CHANNEL)
     if channel:
         await channel.send(
             f"**Bi-Weekly Incident Report**\n"
