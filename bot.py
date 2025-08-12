@@ -138,7 +138,7 @@ async def biweekly_summary():
     save_reports([])
 
 # Create and configure scheduler
-scheduler = AsyncIOScheduler()
+scheduler = AsyncIOScheduler(event_loop=bot.loop)
 trigger = CronTrigger(day='1st mon,3rd mon', hour=10, minute=0)
 scheduler.add_job(biweekly_summary, trigger)
 scheduler.start()
