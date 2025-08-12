@@ -1,4 +1,4 @@
-import os, discord, json
+import discord, json
 from discord.ext import commands, tasks
 from discord import app_commands
 from keep_alive import keep_alive
@@ -137,26 +137,24 @@ async def biweekly_summary():
     # Clear logs after reporting
     save_reports([])
 
-# Create and configure scheduler
-scheduler = AsyncIOScheduler(event_loop=bot.loop)
-trigger = CronTrigger(day='1st mon,3rd mon', hour=10, minute=0)
-scheduler.add_job(biweekly_summary, trigger)
-scheduler.start()
-
 
 @biweekly_summary.before_loop
 async def before_summary():
     await bot.wait_until_ready()
 
 
-@bot.event
-async def on_ready():
-    await bot.tree.sync()
-    if not biweekly_summary.is_running():
-        biweekly_summary.start()
-    print(f"Logged in as {bot.user} (ID: {bot.user.id})")
-    print("------")
+class MyBot(discord.Bot):
+    async def setup_hook(self):
+        # Initialize the scheduler within the asynchronous setup_hook
+        self.scheduler = AsyncIOScheduler()
+        trigger = CronTrigger(day='1st mon,3rd mon', hour=10, minute=0)
+        self.scheduler.add_job(biweekly_summary, trigger)
+        self.scheduler.start()
+        
+    async def on_ready(self):
+        print(f'Logged in as {self.user}')
 
 
 keep_alive()
-bot.run(os.environ["token"])
+bot = MyBot()
+bot.run("token")
