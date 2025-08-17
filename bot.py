@@ -39,7 +39,7 @@ last_response_date = {} # Dictionary to track the last response date per guild
     date="Date of the incident (e.g. Day ##)",
     location="Where the incident occured",
     car_id="Car identification number(s) (e.g. IOS475, FLP909,...)",
-    percent="Current percentage(s) in order of car ID(s)",
+    percent="Current condition(s) in order of car ID(s)",
     description="Brief description of what happened"
 )
 async def hfi(
@@ -55,7 +55,7 @@ async def hfi(
         f"📅 **Day**: {date}\n"
         f"📍 **Location**: {location}\n"
         f"🚃 **Car ID(s)**: {car_id}\n"
-        f"🤕 **Current damage(s)**: {percent}\n"
+        f"🤕 **Current condition(s)**: {percent}\n"
         f"📝 **Description of what happened**: {description}"
     )
     await interaction.response.send_message(summary)
@@ -68,4 +68,4 @@ async def on_ready():
     print("------")
 
 keep_alive()
-bot.run(os.environ["token"])
+bot.run(os.environ["TOKEN"])
