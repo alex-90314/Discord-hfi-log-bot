@@ -13,7 +13,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # Slash command to report a car incident
 @bot.tree.command(name="hfi", description="Make a report")
 @app_commands.describe(
-    date="Date of the incident (e.g. Day ##)",
+    date="Day of the incident (e.g. Day: ##)",
     location="Where the incident occured",
     car_id="Car identification number(s) (e.g. IOS475, FLP909,...)",
     percent="Current condition(s) in order of car ID(s)",
