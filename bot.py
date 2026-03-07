@@ -1,8 +1,7 @@
-import os, discord
+import discord
 from discord.ext import commands
 from discord import app_commands
-from keep_alive import keep_alive
-from datetime import datetime
+from typing import Literal
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -13,6 +12,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # Slash command to report a car incident
 @bot.tree.command(name="hfi", description="Make a report")
 @app_commands.describe(
+    road="Choose an alternate RR"
     in_game_day="In-game day of the incident (e.g. \"Day:\" ##)",
     location="Where the incident occured",
     car_id="Car identification number(s) (e.g. IOS475, FLP909,...)",
@@ -21,6 +21,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 )
 async def hfi(
     interaction: discord.Interaction,
+    road: Literal["Road2", "Road3"] = "TVRC",
     in_game_day: str,
     location: str,
     car_id: str,
@@ -29,6 +30,7 @@ async def hfi(
 ):
     # Compose and send the response
     summary = (
+        f"🚂**Road**{road}\n"
         f"📅 **Day**: {in_game_day}\n"
         f"📍 **Location**: {location}\n"
         f"🚃 **Car ID(s)**: {car_id}\n"
@@ -44,5 +46,4 @@ async def on_ready():
     print(f"Logged in as {bot.user} (ID: {bot.user.id})")
     print("------")
 
-keep_alive()
 bot.run(os.environ["TOKEN"])
