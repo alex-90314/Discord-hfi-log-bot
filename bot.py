@@ -12,7 +12,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # Slash command to report a car incident
 @bot.tree.command(name="hfi", description="Make a report")
 @app_commands.describe(
-    road="Choose an alternate RR"
+    road="Choose an alternate RR",
     in_game_day="In-game day of the incident (e.g. \"Day:\" ##)",
     location="Where the incident occured",
     car_id="Car identification number(s) (e.g. IOS475, FLP909,...)",
@@ -21,16 +21,16 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 )
 async def hfi(
     interaction: discord.Interaction,
-    road: Literal["Road2", "Road3"] = "TVRC",
     in_game_day: str,
     location: str,
     car_id: str,
     condition: str,
-    description: str
+    description: str,
+    road: Literal["Road2", "Road3"] = "TVRC"
 ):
     # Compose and send the response
     summary = (
-        f"🚂**Road**{road}\n"
+        f"🚂**Road**: {road}\n"
         f"📅 **Day**: {in_game_day}\n"
         f"📍 **Location**: {location}\n"
         f"🚃 **Car ID(s)**: {car_id}\n"
