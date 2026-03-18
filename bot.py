@@ -1,43 +1,44 @@
 import discord
 from discord.ext import commands
-from discord import app_commands
+from discord import app_commands, ui
 from typing import Literal
+from config import TOKEN
 
 intents = discord.Intents.default()
-intents.message_content = True
-intents.guilds = True
-intents.members = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# Slash command to report a car incident
+#Stage 2 of the modal
+class HFI_modal(ui.Modal, title="Incident Report"):
+    in_game_day = ui.TextInput(label="In-game day", placeholder="e.g. \"Day:\" ##", min_length=1)
+    location = ui.TextInput(label="Location",placeholder="Where the incident occured")
+    car_id = ui.TextInput(label="Car ID(s)",placeholder="e.g. IOS475, FLP909,...")
+    condition = ui.TextInput(label="Current condition(s) in order of car ID(s)")
+    description = ui.TextInput(label="Brief description of what happened", style=discord.TextStyle.paragraph)
+
+    def __init__(self,road:str):
+        super().__init__()
+        self.road = road
+
+    async def on_submit(self, interaction: discord.Interaction):
+        summary = (
+            f"🚂**Road**: {self.road}\n"
+            f"📅 **Day**: {self.in_game_day.value}\n"
+            f"📍 **Location**: {self.location.value}\n"
+            f"🚃 **Car ID(s)**: {self.car_id.value}\n"
+            f"🤕 **Current condition(s)**: {self.condition.value}\n"
+            f"📝 **Description of what happened**: {self.description.value}"
+        )
+        await interaction.response.send_message(summary)
+
+
+# Stage 1: Slash command to report a car incident
 @bot.tree.command(name="hfi", description="Make a report")
-@app_commands.describe(
-    road="Choose an alternate RR: Canton Belt Railway(CBR)",
-    in_game_day="In-game day of the incident (e.g. \"Day:\" ##)",
-    location="Where the incident occured",
-    car_id="Car identification number(s) (e.g. IOS475, FLP909,...)",
-    condition="Current condition(s) in order of car ID(s)",
-    description="Brief description of what happened"
-)
+@app_commands.describe(road="Choose an alternate RR: Canton Belt Railway(CBR)")
 async def hfi(
     interaction: discord.Interaction,
-    in_game_day: str,
-    location: str,
-    car_id: str,
-    condition: str,
-    description: str,
-    road: Literal["CBR"] = "TVRC"
+    road: Literal["TVRC","CBR"]
 ):
-    # Compose and send the response
-    summary = (
-        f"🚂**Road**: {road}\n"
-        f"📅 **Day**: {in_game_day}\n"
-        f"📍 **Location**: {location}\n"
-        f"🚃 **Car ID(s)**: {car_id}\n"
-        f"🤕 **Current condition(s)**: {condition}\n"
-        f"📝 **Description of what happened**: {description}"
-    )
-    await interaction.response.send_message(summary)
+    await interaction.response.send_modal(HFI_modal(road=road))
 
 
 @bot.event
@@ -46,4 +47,4 @@ async def on_ready():
     print(f"Logged in as {bot.user} (ID: {bot.user.id})")
     print("------")
 
-bot.run(os.environ["TOKEN"])
+bot.run(TOKEN)
