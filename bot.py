@@ -33,7 +33,7 @@ class HFI_modal(ui.Modal, title="Incident Report"):
 
 # Stage 1: Slash command to report a car incident
 @bot.tree.command(name="hfi", description="Make a report")
-@app_commands.describe(road="Choose an alternate RR: Canton Belt Railway(CBR)")
+@app_commands.describe(road="Choose a Railroad")
 async def hfi(
     interaction: discord.Interaction,
     road: Literal["TVRC","CBR"]
