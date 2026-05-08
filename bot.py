@@ -3,9 +3,26 @@ from discord.ext import commands
 from discord import app_commands, ui
 from typing import Literal
 from config import TOKEN
+from datetime import datetime
+
+class MyBot(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.current = datetime.now().strftime("%m%d")
+        self.log_num = 0
+
+    def generate_log_num(self):
+        today = datetime.now().strftime("%m%d")
+        if today != self.current:
+            self.current = today
+            self.log_num = 0
+        
+        self.log_num+=1
+
+        return f"{self.current}-{self.log_num:02d}"
 
 intents = discord.Intents.default()
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = MyBot(command_prefix="!", intents=intents)
 
 #Stage 2 of the modal
 class HFI_modal(ui.Modal, title="Incident Report"):
@@ -20,7 +37,9 @@ class HFI_modal(ui.Modal, title="Incident Report"):
         self.road = road
 
     async def on_submit(self, interaction: discord.Interaction):
+        report_id = interaction.client.generate_log_num()
         summary = (
+            f"**Report ID**: {report_id}\n"
             f"🚂**Road**: {self.road}\n"
             f"📅 **Day**: {self.in_game_day.value}\n"
             f"📍 **Location**: {self.location.value}\n"
@@ -34,10 +53,7 @@ class HFI_modal(ui.Modal, title="Incident Report"):
 # Stage 1: Slash command to report a car incident
 @bot.tree.command(name="hfi", description="Make a report")
 @app_commands.describe(road="Choose a Railroad")
-async def hfi(
-    interaction: discord.Interaction,
-    road: Literal["TVRC","CBR"]
-):
+async def hfi(interaction: discord.Interaction, road: Literal["TVRC","CBR"]):
     await interaction.response.send_modal(HFI_modal(road=road))
 
 
