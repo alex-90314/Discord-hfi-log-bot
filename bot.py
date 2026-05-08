@@ -4,7 +4,7 @@ from discord import app_commands, ui
 from typing import Literal
 from config import TOKEN
 from datetime import datetime
-
+TOKEN = "MTM3MTMyMjAyNjY5ODA4NDQxNQ.G0uCLJ.pPbNSeyAU0ASclEUTYCzpuHQoTYi810IJCAj_M"
 class MyBot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
